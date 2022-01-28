@@ -18,6 +18,7 @@ input {
   color: rgb(133, 176, 226);
   font-weight: 700;
   font-size: 20px;
+  padding-left: 1em;
 }
 
 ::-webkit-input-placeholder {
@@ -29,7 +30,7 @@ input:focus {
 }
 
 .container {
-  width: 100vw;
+  width: 100%;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -50,7 +51,7 @@ input:focus {
 .photos {
   width: 100%;
   display: grid;
-  grid-template-columns: auto auto;
+  grid-template-columns: repeat(2, 1fr);
 }
 
 .photo-component {
@@ -115,5 +116,11 @@ input:focus {
   100% {
     opacity: 1;
     transform: translateY(0%);
+  }
+}
+
+@media (max-width: 880px) {
+  .photos {
+    grid-template-columns: 1fr;
   }
 }

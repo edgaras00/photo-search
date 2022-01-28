@@ -121,12 +121,14 @@ const App = () => {
     });
   }
 
+  console.log(window.innerWidth);
+
   return (
     <div className="container">
       <div className="input-container">
         <input
           type="text"
-          placeholder="Search for image"
+          placeholder="Search for images"
           value={query}
           name="query"
           onChange={(event) => setQuery(event.target.value)}
