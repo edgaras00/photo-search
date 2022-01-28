@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import PhotoComponent from "./Components/PhotoComponent";
 import InfiniteScroll from "react-infinite-scroll-component";
+import handleError from "./utils/handleError";
 import search from "./vectors/search.svg";
 import "./style.css";
 
@@ -10,8 +11,7 @@ const App = () => {
   // State that hold the user's search input
   const [query, setQuery] = useState("");
   // State that holds the selected page number for the API call
-  const [page, setPage] = useState(2);
-
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
     const clientId = process.env.REACT_APP_API_KEY;
@@ -32,21 +32,27 @@ const App = () => {
 
   const getData = async (query) => {
     // Function to get photos based on user's submitted query
-
     try {
       const clientId = process.env.REACT_APP_API_KEY;
       const baseUrl = "https://api.unsplash.com/";
       const api = `search/photos/?client_id=${clientId}&count=10`;
       const q = `&query=${query}`;
       const response = await fetch(baseUrl + api + q);
-      if (response.status === 403) {
-        alert("Unsplash API request rate exceeded!");
-        return;
+
+      if (response.status !== 200) {
+        handleError(response.status);
       }
+
       const data = await response.json();
       setPhotos(data.results);
     } catch (error) {
       console.log(error);
+      if (error.message === "403") {
+        alert("Unsplash API requests rate exceeded!");
+        return;
+      }
+      alert("Somerhing went wrong. Please try again later!");
+      return;
     }
   };
 
@@ -61,10 +67,11 @@ const App = () => {
         const baseUrl = "https://api.unsplash.com/photos/";
         const api = `?client_id=${clientId}&count=10&page=${page}`;
         const response = await fetch(baseUrl + api);
-        if (response.status === 403) {
-          alert("Unsplash API request rate exceeded!");
-          return;
+
+        if (response.status !== 200) {
+          handleError(response.status);
         }
+
         const data = await response.json();
         setPhotos((prev) => prev.concat(data));
         setPage((prev) => prev + 1);
@@ -74,16 +81,23 @@ const App = () => {
         const api = `?client_id=${clientId}&count=10&page=${page}`;
         const q = `&query=${query}`;
         const response = await fetch(baseUrl + api + q);
-        if (response.status === 403) {
-          alert("Unsplash API request rate exceeded!");
+
+        if (response.status !== 200) {
+          handleError(response.status);
         }
+
         const data = await response.json();
         setPhotos((prev) => prev.concat(data.results));
-        // setPhotos(prev => [...prev, data.results]);
         setPage((prev) => prev + 1);
       }
     } catch (error) {
       console.log(error);
+      if (error.message === "403") {
+        alert("Unsplash API requests rate limit exceeded!");
+        return;
+      }
+      alert("Something went wrong. Please try again later.");
+      return;
     }
   };
 
@@ -91,19 +105,19 @@ const App = () => {
   let images;
   if (photos) {
     images = photos.map((item, index) => {
-        return (
-          <PhotoComponent
-            image={item.urls.small}
-            key={index}
-            user={`${item.user.first_name} ${
-              item.user.last_name ? item.user.last_name : ""
-            }`}
-            profilePage={item.user.links.html}
-            profileImage={item.user.profile_image.small}
-            portfolio={item.user.portfolio_url}
-            download={item.links.html}
-          />
-        );
+      return (
+        <PhotoComponent
+          image={item.urls.small}
+          key={index}
+          user={`${item.user.first_name} ${
+            item.user.last_name ? item.user.last_name : ""
+          }`}
+          profilePage={item.user.links.html}
+          profileImage={item.user.profile_image.small}
+          portfolio={item.user.portfolio_url}
+          download={item.links.html}
+        />
+      );
     });
   }
 
