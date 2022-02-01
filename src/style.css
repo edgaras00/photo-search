@@ -123,4 +123,8 @@ input:focus {
   .photos {
     grid-template-columns: 1fr;
   }
+
+  .input-container {
+    justify-content: center;
+  }
 }
